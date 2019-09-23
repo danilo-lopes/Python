@@ -1,1 +1,1 @@
-Here you're find out some projects and Python scripts that I'm creating. Enjoy.
+Here you'll find out some projects and Python scripts that I'm creating. Enjoy.
