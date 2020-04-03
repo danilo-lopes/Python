@@ -1,3 +1,5 @@
+# https://www.bytebank.com.br/cambio?moedaorigem=real&moedadestino=dolar&valor=700
+
 class ExtratorArgumentosUrl:
     def __init__(self, url):
         if self.urlEhValida(url):
@@ -10,24 +12,34 @@ class ExtratorArgumentosUrl:
     def urlEhValida(url):
         if url:
             return True
+        
         else:
             return False
 
     def extraiArgumentos(self):
+        moedasAceitas = ["real", "dolar"]
 
-        buscaMoedaOrigem = "moedaorigem="
-        buscaMoedaDestino = "moedadestino="
+        indiceInicialMoedaOrigem = self.encontraIndiceInicial("moedaorigem=")
+        indiceFinalMoedaOrigem = self.url.find("&")
 
-        indiceInicialMoedaOrigem = self.encontraIndiceInicial(buscaMoedaOrigem)
-        indiceFinalMoedaOrigem = self.url.find(buscaMoedaDestino) - 1
+        indiceInicialMoedaDestino = self.encontraIndiceInicial("moedadestino=")
+        indiceFinalMoedaDestino = self.url.find("&", indiceFinalMoedaOrigem + 1)
 
-        indiceInicialMoedaDestino = self.encontraIndiceInicial(buscaMoedaDestino)
-        indiceFinalMoedaDestino = self.url.find("valor") - 1
+        indiceValorInicial = self.encontraIndiceInicial("valor=")
 
         moedaOrigem = self.url[indiceInicialMoedaOrigem:indiceFinalMoedaOrigem]
+
+        if moedaOrigem not in moedasAceitas:
+            raise LookupError(f"Valor {moedaOrigem} não é válido!")
+
         moedaDestino = self.url[indiceInicialMoedaDestino:indiceFinalMoedaDestino]
 
-        return moedaOrigem, moedaDestino
+        if moedaDestino not in moedasAceitas:
+            raise LookupError(f"Valor {moedaDestino} não é válido!")
+        
+        valor = self.url[indiceValorInicial:]
+
+        return moedaOrigem, moedaDestino, valor
 
     def encontraIndiceInicial(self, moedaBuscada):
         return self.url.find(moedaBuscada) + len(moedaBuscada)
