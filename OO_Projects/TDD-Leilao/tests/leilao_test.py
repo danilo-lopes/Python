@@ -1,82 +1,98 @@
-from unittest import TestCase
+import pytest
 from src.app_leilao.usuario import Usuario
-from src.app_leilao.lance import Lance
 from src.app_leilao.leilao import Leilao
+from src.app_leilao.lance import Lance
 from src.app_leilao.excessao_leilao import LanceInvalido
 
 
-class TestLeilao(TestCase):
+@pytest.fixture
+def joao():
+    return Usuario('Joao', 500)
 
-    def setUp(self):
 
-        self.danilo = Usuario('Danilo', 500)
-        self.joao = Usuario('Joao', 500)
-        self.pedro = Usuario('Pedro', 500)
+@pytest.fixture
+def danilo():
+    return Usuario('Danilo', 500)
 
-        self.lance_joao = Lance(self.joao, 2500)
-        self.lance_danilo = Lance(self.danilo, 1500)
-        self.lance_pedro = Lance(self.pedro, 100)
 
-        self.leilao = Leilao('Xiaomi Mi10 Pro')
+@pytest.fixture
+def pedro():
+    return Usuario('Pedro', 500)
 
-    def test_OrdemCrescente(self):
 
-        lancamentos_leilao = [self.lance_pedro, self.lance_danilo, self.lance_joao]
-        
-        [self.leilao.propoe(lance) for lance in lancamentos_leilao]
+@pytest.fixture
+def leilao():
+    return Leilao('Xiaomi Mi10 Pro')
 
-        menor_lance_esperado = 100
-        maior_lance_esperado = 2500
 
-        self.assertEqual(menor_lance_esperado, self.leilao.menor_lance)
-        self.assertEqual(maior_lance_esperado, self.leilao.maior_lance)
+def test_deve_permitir_lance_em_ordem_crescente(pedro, danilo, joao, leilao):
+    lance_pedro = Lance(pedro, 100)
+    lance_danilo = Lance(danilo, 50)
+    lance_joao = Lance(joao, 10)
 
-    def test_nao_deve_permitir_lance_em_ordem_decrescente(self):
-        self.leilao.propoe(self.lance_joao)
+    lancamentos_leilao = [lance_joao, lance_danilo, lance_pedro]
 
-        with self.assertRaises(LanceInvalido):
-            marinalva = Usuario('marinalva', 500)
-            lance_marinalva = Lance(marinalva, 50)
+    [leilao.propoe(lance) for lance in lancamentos_leilao]
 
-            self.leilao.propoe(lance_marinalva)
+    menor_lance_esperado = 10
+    maior_lance_esperado = 100
 
-    def test_UnicoUsuario(self):
-        josias = Usuario('Josias', 500)
+    assert menor_lance_esperado == leilao.menor_lance
+    assert maior_lance_esperado == leilao.maior_lance
 
-        lance_josias = Lance(josias, 4000)
 
-        self.leilao = Leilao('Iphone The Best 40')
+def test_nao_deve_permitir_lance_em_ordem_decrescente(joao, leilao):
+    lance_joao = Lance(joao, 100)
+    leilao.propoe(lance_joao)
 
-        self.leilao.propoe(lance_josias)
+    with pytest.raises(LanceInvalido):
+        marinalva = Usuario('marinalva', 500)
+        lance_marinalva = Lance(marinalva, 50)
 
-        menor_lance_esperado = 4000
+        leilao.propoe(lance_marinalva)
 
-        self.assertEqual(menor_lance_esperado, self.leilao.menor_lance)
 
-    def test_deve_permitir_lances_caso_leilao_nao_tenha_lances(self):
-        moises = Usuario('moises', 500)
-        lance_moises = Lance(moises, 2000)
+def test_deve_permitir_unico_lance_de_um_usuario(leilao):
+    josias = Usuario('Josias', 500)
 
-        self.leilao.propoe(lance_moises)
+    lance_josias = Lance(josias, 4000)
 
-        quantidadeLances = len(self.leilao.lances)
+    leilao.propoe(lance_josias)
 
-        self.assertEqual(1, quantidadeLances)
+    menor_lance_esperado = 4000
 
-    def test_deve_permitir_lance_caso_ultimo_usuario_seja_diferente(self):
-        carol = Usuario('carol', 500)
-        lance_carol = Lance(carol, 200)
+    assert menor_lance_esperado == leilao.menor_lance
 
-        self.leilao.propoe(lance_carol)
-        self.leilao.propoe(self.lance_joao)
 
-        quantidadeLances = len(self.leilao.lances)
+def test_deve_permitir_lances_caso_leilao_nao_tenha_lances(leilao):
+    moises = Usuario('moises', 500)
+    lance_moises = Lance(moises, 2000)
 
-        self.assertEqual(2, quantidadeLances)
+    leilao.propoe(lance_moises)
 
-    def test_deve_nao_deve_permitir_lance_do_mesmo_usuario(self):
-        lance_200_joao = Lance(self.joao, 3000)
+    quantidadeLances = len(leilao.lances)
 
-        with self.assertRaises(LanceInvalido):
-            self.leilao.propoe(self.lance_joao)
-            self.leilao.propoe(lance_200_joao)
+    assert 1 == quantidadeLances
+
+
+def test_deve_permitir_lance_caso_ultimo_usuario_seja_diferente(leilao):
+    carol = Usuario('carol', 500)
+    lance_carol = Lance(carol, 200)
+
+    lance_joao = Lance(joao, 300)
+
+    leilao.propoe(lance_carol)
+    leilao.propoe(lance_joao)
+
+    quantidadeLances = len(leilao.lances)
+
+    assert 2 == quantidadeLances
+
+
+def test_deve_nao_deve_permitir_lance_do_mesmo_usuario(joao, leilao):
+    lance_joao = Lance(joao, 100)
+    lance_200_joao = Lance(joao, 200)
+
+    with pytest.raises(LanceInvalido):
+        leilao.propoe(lance_joao)
+        leilao.propoe(lance_200_joao)

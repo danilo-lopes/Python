@@ -8,4 +8,4 @@ terceiro = (numero ** (1/2))
 
 print('Dobro do número é: {}'.format(primeiro))
 print('O triplo do número é: {}'.format(segundo))
-print('A raiz quadrada do número é: {}'.format(numero))
+print('A raiz quadrada do número é: {}'.format(terceiro))

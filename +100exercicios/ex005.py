@@ -3,3 +3,4 @@
 num = int(input('Digite um valor: '))
 
 print('Analisando o valor {}, o seu antecessor é o número: {} e o seu sucessor é o número: {}'.format(num, (num-1), (num+1)))
+print(f'Analisando o valor {num}, o seu antecessor é o número: {num-1} e o seu sucessor é o número: {num+1}')
