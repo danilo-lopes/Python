@@ -2,7 +2,20 @@
 
 ## Projeto
 
-
+```
+├── README.md
+├── src
+│   ├── app_leilao
+│   │   ├── excessao_leilao.py
+│   │   ├── __init__.py
+│   │   ├── lance.py
+│   │   ├── leilao.py
+│   │   └── usuario.py
+└── tests
+    ├── __init__.py
+    ├── leilao_test.py
+    └── usuario_test.py
+```
 
 # Imitando uma aplicação de leilão
 
